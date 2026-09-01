@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherGPT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>🌤️ WeatherGPT</h1>
+            <p>Ask me anything about the weather.</p>
+        </header>
+
+        <main>
+
+            <div class="chat-box">
+                <textarea
+                    id="question"
+                    placeholder="Example: Should I carry an umbrella in Nagpur?"
+                ></textarea>
+
+                <button id="askButton">Ask WeatherGPT</button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                Checking the weather...
+            </div>
+
+            <div id="response" class="response hidden">
+
+                <h2>🤖 WeatherGPT</h2>
+
+                <p id="answer"></p>
+
+                <div class="weather-grid">
+
+                    <div class="weather-card">
+                        <span>🌡️</span>
+                        <strong id="temperature">--</strong>
+                        <small>Temperature</small>
+                    </div>
+
+                    <div class="weather-card">
+                        <span>💧</span>
+                        <strong id="humidity">--</strong>
+                        <small>Humidity</small>
+                    </div>
+
+                    <div class="weather-card">
+                        <span>☔</span>
+                        <strong id="rain">--</strong>
+                        <small>Rain Probability</small>
+                    </div>
+
+                    <div class="weather-card">
+                        <span>💨</span>
+                        <strong id="wind">--</strong>
+                        <small>Wind Speed</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+        <footer>
+            Weather data powered by Open-Meteo
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

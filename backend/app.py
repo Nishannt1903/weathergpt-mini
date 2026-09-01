@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from llm_service import generate_weather_response
 from flask_cors import CORS
 import requests
 
@@ -103,7 +104,59 @@ def weather():
             "error": str(error)
         }), 500
 
+@app.route("/api/ask", methods=["POST"])
+def ask():
+    data = request.get_json()
 
+    question = data.get("question", "").strip()
+
+    if not question:
+        return jsonify({"error": "Please enter a question."}), 400
+
+    # Simple city detection
+    cities = [
+        "Nagpur", "Pune", "Mumbai", "Delhi",
+        "Bengaluru", "Bangalore", "Hyderabad",
+        "Chennai", "Kolkata", "Ahmedabad",
+        "Jaipur", "Nashik"
+    ]
+
+    city = None
+
+    for c in cities:
+        if c.lower() in question.lower():
+            city = c
+            break
+
+    if not city:
+        return jsonify({
+            "error": "Please mention a city."
+        }), 400
+
+    # Get weather from our existing weather endpoint
+    with app.test_request_context(
+        f"/api/weather?city={city}"
+    ):
+        weather_response = weather()
+
+    if isinstance(weather_response, tuple):
+        weather_data = weather_response[0].get_json()
+    else:
+        weather_data = weather_response.get_json()
+
+    if "error" in weather_data:
+        return jsonify(weather_data), 400
+
+    # Ask Gemini to turn weather data into a natural answer
+    ai_answer = generate_weather_response(
+        question,
+        weather_data
+    )
+
+    return jsonify({
+        "answer": ai_answer,
+        "weather": weather_data
+    })
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",

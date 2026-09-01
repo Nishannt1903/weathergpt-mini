@@ -11,49 +11,6 @@ const rain = document.getElementById("rain");
 const wind = document.getElementById("wind");
 
 
-function findCity(question) {
-
-    const knownCities = [
-        "Nagpur",
-        "Pune",
-        "Mumbai",
-        "Delhi",
-        "Bengaluru",
-        "Bangalore",
-        "Hyderabad",
-        "Chennai",
-        "Kolkata",
-        "Ahmedabad",
-        "Jaipur",
-        "Nashik"
-    ];
-
-    for (const city of knownCities) {
-        if (question.toLowerCase().includes(city.toLowerCase())) {
-            return city;
-        }
-    }
-
-    return null;
-}
-
-
-function createRecommendation(weather) {
-
-    const rainProbability = weather.rain_probability;
-
-    if (rainProbability >= 60) {
-        return `Yes, I recommend carrying an umbrella. There is a ${rainProbability}% chance of rain.`;
-    }
-
-    if (rainProbability >= 30) {
-        return `You may want to carry an umbrella just in case. There is a ${rainProbability}% chance of rain.`;
-    }
-
-    return `You probably don't need an umbrella. The chance of rain is only ${rainProbability}%.`;
-}
-
-
 async function askWeatherGPT() {
 
     const question = questionInput.value.trim();
@@ -63,31 +20,40 @@ async function askWeatherGPT() {
         return;
     }
 
-    const city = findCity(question);
-
-    if (!city) {
-        alert("Please mention a city, for example: Nagpur, Pune or Mumbai.");
-        return;
-    }
-
     loading.classList.remove("hidden");
     response.classList.add("hidden");
 
     try {
 
-        const url =
-            `http://10.184.4.139:5000/api/weather?city=${encodeURIComponent(city)}`;
+        const result = await fetch(
+            "http://127.0.0.1:5000/api/ask",
+            {
+                method: "POST",
 
-        const result = await fetch(url);
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-        const weather = await result.json();
+                body: JSON.stringify({
+                    question: question
+                })
+            }
+        );
+
+        const data = await result.json();
 
         if (!result.ok) {
-            throw new Error(weather.error || "Weather request failed.");
+            throw new Error(
+                data.error || "Request failed."
+            );
         }
 
-        answer.textContent = createRecommendation(weather);
+        const weather = data.weather;
 
+        // Gemini answer
+        answer.textContent = data.answer;
+
+        // Weather information
         temperature.textContent =
             `${weather.temperature}°C`;
 
@@ -104,9 +70,11 @@ async function askWeatherGPT() {
 
     } catch (error) {
 
-        alert("Unable to get weather data. Make sure the backend is running.");
-
         console.error(error);
+
+        alert(
+            "Unable to get weather data. Make sure the backend is running."
+        );
 
     } finally {
 
@@ -115,4 +83,7 @@ async function askWeatherGPT() {
 }
 
 
-askButton.addEventListener("click", askWeatherGPT);
+askButton.addEventListener(
+    "click",
+    askWeatherGPT
+);

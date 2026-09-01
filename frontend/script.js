@@ -26,7 +26,7 @@ async function askWeatherGPT() {
     try {
 
         const result = await fetch(
-            "http://127.0.0.1:5000/api/ask",
+            "http://10.184.4.139:5000/api/ask",
             {
                 method: "POST",
 
